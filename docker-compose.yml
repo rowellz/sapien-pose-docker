@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+
+  sapians-demo:
+    restart: always
+    container_name: sapians-depth
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    volumes:
+      - "./app.py:/home/user/app/app.py"
+    ports:
+      - "7864:7860"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: 'nvidia'
+              count: all
+              capabilities: [gpu]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
