@@ -144,6 +144,21 @@ class ImageProcessor:
             input_tensor = self.transform(cropped_img).unsqueeze(0).to("cuda")
             heatmaps = ModelManager.run_model(pose_model, input_tensor)
             keypoints = self.heatmaps_to_keypoints(heatmaps[0].cpu().numpy(), bbox)
+            
+            # Add bounding box coordinates to the keypoints
+            x1, y1, x2, y2 = map(int, bbox[:4])
+            
+            tr_bb = [x2, y1, 0]  # Top-right corner
+            tl_bb = [x1, y1, 0]  # Top-left corner
+            br_bb = [x2, y2, 0]  # Bottom-right corner
+            bl_bb = [x1, y2, 0]  # Bottom-left corner
+
+            # Add the bounding box corners to the keypoints
+            keypoints["tr_bb"] = tr_bb
+            keypoints["tl_bb"] = tl_bb
+            keypoints["br_bb"] = br_bb
+            keypoints["bl_bb"] = bl_bb
+            
             all_keypoints.append(keypoints)  # Collect keypoints
             result_image = self.draw_keypoints(result_image, keypoints, bbox, kpt_threshold)
         
